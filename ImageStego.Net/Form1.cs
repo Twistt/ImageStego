@@ -48,7 +48,6 @@ namespace ImageStego.Net
                 File.WriteAllBytes(sfd.FileName, ms.ToArray());
                 CheckForSten();
             }
-
         }
 
         private void btnDecodeText_Click(object sender, EventArgs e)
@@ -71,10 +70,7 @@ namespace ImageStego.Net
             if (ofd.FileName == "") return;
             image = (Bitmap)Image.FromFile(ofd.FileName, true);
             pictureBox1.Image = image;
-
             CheckForSten();
-
-            
         }
         private bool CheckForSten()
         {
@@ -88,6 +84,15 @@ namespace ImageStego.Net
             {
                 btnValidated.BackColor = Color.Red;
                 return false;
+            }
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            if (Clipboard.ContainsImage())
+            {
+                image = (Bitmap)Clipboard.GetImage();
+                pictureBox1.Image = image;
             }
         }
     }
