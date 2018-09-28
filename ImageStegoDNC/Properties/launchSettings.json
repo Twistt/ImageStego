@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ImageStegoDNC": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\ImageStego-master\\ImageStegoDNC\\bin\\Debug\\netcoreapp2.1\\test.png"
+    }
+  }
+}
