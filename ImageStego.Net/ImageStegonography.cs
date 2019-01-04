@@ -12,17 +12,17 @@ namespace ImageStego.Net
     {
         List<ValidatorSet> ValidatorSets = new List<ValidatorSet>();
         public Bitmap bm = null;
-        private const int yoffset = 2;
-        private const int xoffset = 1;
+        private const int yoffset = 5;
+        private const int xoffset = 5;
         public bool UseAlphaChannel = false;
         public ImageStegonography(Bitmap image)
         {
             this.bm = image.Clone(new Rectangle(new Point(), image.Size), System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-            ValidatorSets.Add(new ValidatorSet { Color = Color.FromArgb(255, 192, 192, 192), X = 20, Y = 20 });
-            ValidatorSets.Add(new ValidatorSet { Color = Color.FromArgb(255, 169, 169, 169), X = 20, Y = image.Height - 20 });
-            ValidatorSets.Add(new ValidatorSet { Color = Color.FromArgb(255, 128, 128, 128), X = image.Width - 20, Y = 20 });
-            ValidatorSets.Add(new ValidatorSet { Color = Color.FromArgb(255, 0, 0, 0), X = image.Width - 20, Y = image.Height - 20 });
+            ValidatorSets.Add(new ValidatorSet { Color = Color.FromArgb(255, 192, 192, 192), X = 5, Y = 5 });
+            ValidatorSets.Add(new ValidatorSet { Color = Color.FromArgb(255, 169, 169, 169), X = 5, Y = image.Height - 5 });
+            ValidatorSets.Add(new ValidatorSet { Color = Color.FromArgb(255, 128, 128, 128), X = image.Width - 5, Y = 5 });
+            ValidatorSets.Add(new ValidatorSet { Color = Color.FromArgb(255, 0, 0, 0), X = image.Width - 5, Y = image.Height - 5 });
         }
         public byte[] DecodeBinary()
         {
@@ -33,9 +33,9 @@ namespace ImageStego.Net
             var endPixelsDetected = false;
             while (endPixelsDetected == false)
             {
-                var sizepixel = bm.GetPixel(i, 30).R;
+                var sizepixel = bm.GetPixel(i, 10).R;
                 dataSize.Add(sizepixel);
-                if (bm.GetPixel(i + 1, 30).R == 0 && bm.GetPixel(i + 2, 30).R == 0)
+                if (bm.GetPixel(i + 1, 10).R == 0 && bm.GetPixel(i + 2, 10).R == 0)
                 {
                     endPixelsDetected = true;
                 }
@@ -44,8 +44,8 @@ namespace ImageStego.Net
             var totalDataSizeString = Encoding.UTF8.GetString(dataSize.ToArray());
             var totalDataSize = int.Parse(totalDataSizeString);
 
-            int x = 30;
-            int y = 30;
+            int x = 10;
+            int y = 10;
             List<byte> bytes = new List<byte>();
             for (var n = 0; n < totalDataSize; n++)
             {
@@ -60,7 +60,7 @@ namespace ImageStego.Net
                         break;
                     }
                     else y += yoffset;
-                    x = 30;
+                    x = 10;
                 }
             }
             return bytes.ToArray();
@@ -74,9 +74,9 @@ namespace ImageStego.Net
             var endPixelsDetected = false;
             while (endPixelsDetected == false)
             {
-                var sizepixel = bm.GetPixel(i, 30).R;
+                var sizepixel = bm.GetPixel(i, 10).R;
                 dataSize.Add(sizepixel);
-                if (bm.GetPixel(i + 1, 30).R == 0 && bm.GetPixel(i + 2, 30).R == 0)
+                if (bm.GetPixel(i + 1, 10).R == 0 && bm.GetPixel(i + 2, 10).R == 0)
                 {
                     endPixelsDetected = true;
                 }
@@ -85,8 +85,8 @@ namespace ImageStego.Net
             var totalDataSizeString = Encoding.UTF8.GetString(dataSize.ToArray());
             var totalDataSize = int.Parse(totalDataSizeString);
 
-            int x = 30;
-            int y = 30;
+            int x = 10;
+            int y = 10;
             List<byte> bytes = new List<byte>();
             for (var n = 0; n < totalDataSize; n++)
             {
@@ -101,7 +101,7 @@ namespace ImageStego.Net
                         break;
                     }
                     else y += yoffset;
-                    x = 30;
+                    x = 10;
                 }
             }
             var text = Encoding.UTF8.GetString(bytes.ToArray());
@@ -116,18 +116,18 @@ namespace ImageStego.Net
             var i = 0;
             foreach (var bit in dataSize)
             {
-                var ogpixel = bm.GetPixel(i, 30);
-                bm.SetPixel(i, 30, Color.FromArgb(255, bit, ogpixel.G, ogpixel.B));
+                var ogpixel = bm.GetPixel(i, 10);
+                bm.SetPixel(i, 10, Color.FromArgb(255, bit, ogpixel.G, ogpixel.B));
                 i++;
             }
             //write "end" package so we know the number is over
-            var ogpixels = bm.GetPixel(i, 30);
-            bm.SetPixel(i, 30, Color.FromArgb(255, 0, ogpixels.G, ogpixels.B));
-            bm.SetPixel(i + 1, 30, Color.FromArgb(255, 0, ogpixels.G, ogpixels.B));
+            var ogpixels = bm.GetPixel(i, 10);
+            bm.SetPixel(i, 10, Color.FromArgb(255, 0, ogpixels.G, ogpixels.B));
+            bm.SetPixel(i + 1, 10, Color.FromArgb(255, 0, ogpixels.G, ogpixels.B));
 
 
-            int x = 30;
-            int y = 30;
+            int x = 10;
+            int y = 10;
             foreach (var bit in bytes)
             {
                 var ogpixel = bm.GetPixel(x, y);
@@ -143,7 +143,7 @@ namespace ImageStego.Net
 
                     }
                     else y += yoffset;
-                    x = 30;
+                    x = 10;
                 }
 
             }
@@ -160,18 +160,18 @@ namespace ImageStego.Net
             var i = 0;
             foreach (var bit in dataSize)
             {
-                var ogpixel = bm.GetPixel(i, 30);
-                bm.SetPixel(i, 30, Color.FromArgb(255, bit, ogpixel.G, ogpixel.B));
+                var ogpixel = bm.GetPixel(i, 10);
+                bm.SetPixel(i, 10, Color.FromArgb(255, bit, ogpixel.G, ogpixel.B));
                 i++;
             }
             //write "end" package so we know the number is over
-            var ogpixels = bm.GetPixel(i, 30);
-            bm.SetPixel(i, 30, Color.FromArgb(255, 0, ogpixels.G, ogpixels.B));
-            bm.SetPixel(i + 1, 30, Color.FromArgb(255, 0, ogpixels.G, ogpixels.B));
+            var ogpixels = bm.GetPixel(i, 10);
+            bm.SetPixel(i, 10, Color.FromArgb(255, 0, ogpixels.G, ogpixels.B));
+            bm.SetPixel(i + 1, 10, Color.FromArgb(255, 0, ogpixels.G, ogpixels.B));
 
 
-            int x = 30;
-            int y = 30;
+            int x = 10;
+            int y = 10;
             foreach (var bit in text)
             {
                 var ogpixel = bm.GetPixel(x, y);
@@ -187,7 +187,7 @@ namespace ImageStego.Net
 
                     }
                     else y += yoffset;
-                    x = 30;
+                    x = 10;
                 }
 
             }
