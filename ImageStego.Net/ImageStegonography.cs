@@ -12,15 +12,58 @@ namespace ImageStego.Net
     {
         List<ValidatorSet> ValidatorSets = new List<ValidatorSet>();
         public Bitmap bm = null;
-        private const int yoffset = 50;
-        private const int xoffset = 50;
+        private const int yoffset = 2;
+        private const int xoffset = 1;
+        public bool UseAlphaChannel = false;
         public ImageStegonography(Bitmap image)
         {
-            this.bm = image;
+            this.bm = image.Clone(new Rectangle(new Point(), image.Size), System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
             ValidatorSets.Add(new ValidatorSet { Color = Color.FromArgb(255, 192, 192, 192), X = 20, Y = 20 });
             ValidatorSets.Add(new ValidatorSet { Color = Color.FromArgb(255, 169, 169, 169), X = 20, Y = image.Height - 20 });
             ValidatorSets.Add(new ValidatorSet { Color = Color.FromArgb(255, 128, 128, 128), X = image.Width - 20, Y = 20 });
             ValidatorSets.Add(new ValidatorSet { Color = Color.FromArgb(255, 0, 0, 0), X = image.Width - 20, Y = image.Height - 20 });
+        }
+        public byte[] DecodeBinary()
+        {
+
+            //read data size
+            var dataSize = new List<byte>();
+            var i = 0;
+            var endPixelsDetected = false;
+            while (endPixelsDetected == false)
+            {
+                var sizepixel = bm.GetPixel(i, 30).R;
+                dataSize.Add(sizepixel);
+                if (bm.GetPixel(i + 1, 30).R == 0 && bm.GetPixel(i + 2, 30).R == 0)
+                {
+                    endPixelsDetected = true;
+                }
+                i++;
+            }
+            var totalDataSizeString = Encoding.UTF8.GetString(dataSize.ToArray());
+            var totalDataSize = int.Parse(totalDataSizeString);
+
+            int x = 30;
+            int y = 30;
+            List<byte> bytes = new List<byte>();
+            for (var n = 0; n < totalDataSize; n++)
+            {
+                var ogpixel = bm.GetPixel(x, y);
+                bytes.Add(ogpixel.A);
+                if (x + xoffset < bm.Width) x += xoffset;
+                else
+                {
+                    if (y + yoffset+1 >= bm.Height)
+                    {
+                        MessageBox.Show("The message has been truncated.");
+                        break;
+                    }
+                    else y += yoffset;
+                    x = 30;
+                }
+            }
+            return bytes.ToArray();
         }
         public string DecodeText()
         {
@@ -63,6 +106,48 @@ namespace ImageStego.Net
             }
             var text = Encoding.UTF8.GetString(bytes.ToArray());
             return text;
+        }
+        public Bitmap EncodeBinary(byte[] bytes)
+        {
+            bm = CreateSignature();
+
+            //write data size to prefix
+            var dataSize = bytes.Length.ToString();
+            var i = 0;
+            foreach (var bit in dataSize)
+            {
+                var ogpixel = bm.GetPixel(i, 30);
+                bm.SetPixel(i, 30, Color.FromArgb(255, bit, ogpixel.G, ogpixel.B));
+                i++;
+            }
+            //write "end" package so we know the number is over
+            var ogpixels = bm.GetPixel(i, 30);
+            bm.SetPixel(i, 30, Color.FromArgb(255, 0, ogpixels.G, ogpixels.B));
+            bm.SetPixel(i + 1, 30, Color.FromArgb(255, 0, ogpixels.G, ogpixels.B));
+
+
+            int x = 30;
+            int y = 30;
+            foreach (var bit in bytes)
+            {
+                var ogpixel = bm.GetPixel(x, y);
+                bm.SetPixel(x, y, Color.FromArgb(bit, ogpixel.R, ogpixel.G, ogpixel.B));
+                ogpixel = bm.GetPixel(x, y);
+                if (x + xoffset < bm.Width) x += xoffset;
+                else
+                {
+                    if (y + yoffset+1 >= bm.Height)
+                    {
+                        MessageBox.Show("Unable to encode the entire message into the image.");
+                        return null;
+
+                    }
+                    else y += yoffset;
+                    x = 30;
+                }
+
+            }
+            return bm;
         }
         public Bitmap EncodeText(string enctext)
         {
